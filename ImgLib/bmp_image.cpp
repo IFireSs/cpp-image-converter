@@ -69,8 +69,17 @@ namespace img_lib {
         BitmapFileHeader fileHeader;
         BitmapInfoHeader infoHeader;
         ifstream ifs(file, ios::binary);
+        if (!ifs) {
+            return {};
+        }
         ifs.read(reinterpret_cast<char*>(&fileHeader), sizeof(BitmapFileHeader));
+        if (fileHeader.sign[0] != 'B' || fileHeader.sign[1] != 'M') {
+            return {};
+        }
         ifs.read(reinterpret_cast<char*>(&infoHeader), sizeof(BitmapInfoHeader));
+        if (infoHeader.width <= 0 || infoHeader.height <= 0) {
+            return {};
+        }
         Image result(infoHeader.width, infoHeader.height, Color::Black());
         int BMPStride = GetBMPStride(infoHeader.width);
         vector<char> buff(BMPStride);
